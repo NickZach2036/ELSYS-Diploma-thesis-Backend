@@ -17,6 +17,7 @@ utils_1.sequelize
     return utils_1.sequelize.sync();
 })
     .then(() => {
+    console.log('All models were synchronized successfully.');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}.`));
 })
     .catch((err) => console.error('Unable to connect to database:', err));
