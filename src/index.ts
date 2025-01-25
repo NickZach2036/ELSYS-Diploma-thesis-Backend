@@ -1,5 +1,5 @@
 import express from 'express';
-import { authRoutes, landmarkRoutes } from './routes';
+import { authRoutes, landmarkRoutes, commentRoutes } from './routes';
 import { sequelize } from './utils';
 import { User, Landmark, Station, Comment } from './models';
 
@@ -9,8 +9,8 @@ const PORT = process.env.PORT || 2999;
 app.use(express.json());
 
 app.use('/auth', authRoutes);
-
 app.use('/landmarks', landmarkRoutes);
+app.use('/comments', commentRoutes);
 
 sequelize
   .authenticate()
