@@ -10,6 +10,8 @@ const app = (0, express_1.default)();
 const PORT = process.env.PORT || 2999;
 app.use(express_1.default.json());
 app.use('/auth', routes_1.authRoutes);
+app.use('/landmarks', routes_1.landmarkRoutes);
+app.use('/comments', routes_1.commentRoutes);
 utils_1.sequelize
     .authenticate()
     .then(() => {
@@ -20,4 +22,6 @@ utils_1.sequelize
     console.log('All models were synchronized successfully.');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}.`));
 })
-    .catch((err) => console.error('Unable to connect to database:', err));
+    .catch((err) => {
+    console.error('Unable to connect to the database:', err);
+});

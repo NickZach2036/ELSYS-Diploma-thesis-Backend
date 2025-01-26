@@ -14,7 +14,6 @@ export const createComment = async (
       return;
     }
 
-    // Validate the landmarkId exists
     const landmark = await Landmark.findByPk(landmarkId);
     if (!landmark) {
       res.status(404).json({ error: 'Landmark not found.' });
