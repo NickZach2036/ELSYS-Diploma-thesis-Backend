@@ -5,7 +5,9 @@ interface UserAttributes {
   id: number;
   username: string;
   password: string;
+  walkingDistanceMinutes?: number;
   createdAt?: Date;
+  updatedAt?: Date;
 }
 
 type UserCreationAttributes = Optional<UserAttributes, 'id'>;
@@ -17,7 +19,9 @@ class User
   public id!: number;
   public username!: string;
   public password!: string;
+  public walkingDistanceMinutes!: number;
   public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 User.init(
@@ -35,14 +39,15 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    createdAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+    walkingDistanceMinutes: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
   },
   {
     sequelize,
     modelName: 'User',
+    timestamps: true,
   },
 );
 

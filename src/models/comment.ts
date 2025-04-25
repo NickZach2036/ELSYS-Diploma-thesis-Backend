@@ -9,6 +9,7 @@ interface CommentAttributes {
   userId: number;
   landmarkId: number;
   createdAt?: Date;
+  updatedAt?: Date;
 }
 
 type CommentCreationAttributes = Optional<CommentAttributes, 'id'>;
@@ -22,6 +23,7 @@ class Comment
   public userId!: number;
   public landmarkId!: number;
   public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 Comment.init(
@@ -51,14 +53,12 @@ Comment.init(
         key: 'id',
       },
     },
-    createdAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
   },
   {
     sequelize,
     modelName: 'Comment',
+    timestamps: true,
+    indexes: [{ fields: ['userId'] }, { fields: ['landmarkId'] }],
   },
 );
 

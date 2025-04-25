@@ -5,6 +5,8 @@ interface StationAttributes {
   id: number;
   name: string;
   location: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 type StationCreationAttributes = Optional<StationAttributes, 'id'>;
@@ -16,6 +18,8 @@ class Station
   public id!: number;
   public name!: string;
   public location!: string;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 Station.init(
@@ -37,6 +41,7 @@ Station.init(
   {
     sequelize,
     modelName: 'Station',
+    timestamps: true,
   },
 );
 

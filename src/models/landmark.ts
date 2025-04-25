@@ -8,6 +8,9 @@ interface LandmarkAttributes {
   description: string;
   location: string;
   stationId: number;
+  distanceFromStation: number; // in meters
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 type LandmarkCreationAttributes = Optional<LandmarkAttributes, 'id'>;
@@ -21,6 +24,9 @@ class Landmark
   public description!: string;
   public location!: string;
   public stationId!: number;
+  public distanceFromStation!: number;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 Landmark.init(
@@ -50,10 +56,15 @@ Landmark.init(
         key: 'id',
       },
     },
+    distanceFromStation: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     sequelize,
     modelName: 'Landmark',
+    timestamps: true,
   },
 );
 
