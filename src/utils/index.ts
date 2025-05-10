@@ -1,3 +1,5 @@
 import sequelize from './database';
+import { sendRes } from './sendRes';
 
-export { sequelize };
+export * from './user-utils';
+export { sequelize, sendRes };

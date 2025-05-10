@@ -129,8 +129,8 @@ export const deleteLandmark = async (
   }
 };
 
-export const createNewLandmark = async (
-  req: Request,
+export const createUserLandmark = async (
+  req: Request & { user?: { id: number; username: string } },
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
@@ -151,8 +151,9 @@ export const createNewLandmark = async (
     });
 
     res.status(201).json(newLandmark);
-  } catch (error) {
-    console.error('Error creating new landmark:', error);
+  } catch (e) {
+    const error = e instanceof Error ? e : new Error('Unknown error');
+    console.error('Error creating user landmark:', error.message);
     next(error);
   }
 };

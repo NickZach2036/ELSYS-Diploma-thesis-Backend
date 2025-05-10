@@ -1,64 +1,99 @@
 import { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcrypt';
+import { sign } from 'jsonwebtoken';
 import User from '../models/user';
 import constants from '../constants';
+import {
+  validateUsernameOrFail,
+  validatePasswordOrFail,
+  createUser as createNewUser,
+} from '../utils/user-utils';
 
-export const register = async (
+type CustomResponse = Response & {
+  sendRes: (data: string | number | boolean | object | null) => Response;
+};
+
+const register = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
+  const resWithSend = res as CustomResponse;
   try {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      res.status(400).json({ error: 'Username and password are required.' });
-      return;
-    }
+    validateUsernameOrFail(username);
+    validatePasswordOrFail(password);
 
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
-      res.status(409).json({ error: 'Username is already taken.' });
+      resWithSend
+        .status(409)
+        .sendRes({ message: 'Username is already taken.' });
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, password: hashedPassword });
+    const user = await createNewUser(username, password);
 
-    res.status(201).json({ message: 'User registered successfully.', user });
-  } catch (error) {
-    console.error('Registration error:', error);
+    const token = sign(
+      { id: user.getDataValue('id'), username: user.getDataValue('username') },
+      constants.JWT_SECRET_KEY,
+      { expiresIn: constants.JWT_EXPIRES_IN },
+    );
+
+    resWithSend.status(201).sendRes({
+      message: 'User registered successfully.',
+      user,
+      token,
+    });
+  } catch (e) {
+    const error =
+      e instanceof Error ? e : new Error('Unknown registration error');
+    console.error('Registration error:', error.message);
     next(error);
   }
 };
 
-export const login = async (
+const login = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
+  const resWithSend = res as CustomResponse;
   try {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      res.status(400).json({ error: 'Username and password are required.' });
-      return;
-    }
+    validateUsernameOrFail(username);
 
     const user = await User.findOne({ where: { username } });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      res.status(401).json({ error: 'Invalid username or password.' });
+    if (!user) {
+      resWithSend.status(400).sendRes({ message: 'User not found.' });
       return;
     }
 
-    const token = jwt.sign({ id: user.id }, constants.JWT_SECRET_KEY, {
-      expiresIn: constants.JWT_EXPIRES_IN,
-    });
+    const hashedPassword = user.getDataValue('password');
+    if (typeof hashedPassword !== 'string') {
+      throw new Error('Stored password is invalid.');
+    }
 
-    res.status(200).json({ message: 'Login successful.', token });
-  } catch (error) {
-    console.error('Login error:', error);
+    const validPassword = await bcrypt.compare(password, hashedPassword);
+    if (!validPassword) {
+      resWithSend.status(400).sendRes({ message: 'Incorrect password.' });
+      return;
+    }
+
+    const token = sign(
+      { id: user.getDataValue('id'), username: user.getDataValue('username') },
+      constants.JWT_SECRET_KEY,
+      { expiresIn: constants.JWT_EXPIRES_IN },
+    );
+
+    resWithSend.status(200).sendRes({ message: 'Login successful.', token });
+  } catch (e) {
+    const error = e instanceof Error ? e : new Error('Unknown login error');
+    console.error('Login error:', error.message);
     next(error);
   }
 };
+
+export { register, login };

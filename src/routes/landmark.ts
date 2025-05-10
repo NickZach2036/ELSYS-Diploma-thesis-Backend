@@ -4,8 +4,9 @@ import {
   getLandmarks,
   updateLandmark,
   deleteLandmark,
-  createNewLandmark,
+  createUserLandmark,
 } from '../controllers/landmark';
+import { authenticateToken } from '../utils/sendRes';
 
 const router = express.Router();
 
@@ -14,6 +15,6 @@ router.post('/', createLandmark);
 router.put('/:id', updateLandmark);
 router.delete('/:id', deleteLandmark);
 
-router.post('/new', createNewLandmark);
+router.post('/new', authenticateToken, createUserLandmark);
 
 export default router;

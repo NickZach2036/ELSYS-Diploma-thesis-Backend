@@ -4,11 +4,12 @@ import {
   getCommentsByLandmark,
   deleteComment,
 } from '../controllers/comment';
+import { authenticateJWT } from '../utils/sendRes';
 
 const router = express.Router();
 
-router.post('/', createComment);
+router.post('/', authenticateJWT, createComment);
 router.get('/landmark/:landmarkId', getCommentsByLandmark);
-router.delete('/:id', deleteComment);
+router.delete('/:id', authenticateJWT, deleteComment);
 
 export default router;

@@ -33,15 +33,15 @@ User.init(
     },
     username: {
       type: DataTypes.STRING,
-      allowNull: true, // <- changed
+      allowNull: true,
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: true, // <- changed
+      allowNull: true,
     },
     walkingDistanceMinutes: {
       type: DataTypes.INTEGER,
-      allowNull: true, // <- changed
+      allowNull: true,
     },
   },
   {

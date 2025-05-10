@@ -1,12 +1,13 @@
 import express from 'express';
 import { authRoutes, landmarkRoutes, commentRoutes } from './routes';
-import { sequelize } from './utils';
+import { sequelize, sendRes } from './utils';
 import { User, Landmark, Station, Comment } from './models';
 
 const app = express();
 const PORT = process.env.PORT || 2999;
 
 app.use(express.json());
+app.use(sendRes);
 
 app.use('/auth', authRoutes);
 app.use('/landmarks', landmarkRoutes);

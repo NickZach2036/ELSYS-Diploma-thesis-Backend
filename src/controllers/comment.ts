@@ -1,29 +1,43 @@
 import { Request, Response, NextFunction } from 'express';
 import { Comment, Landmark, User } from '../models';
 
+interface AuthenticatedRequest extends Request {
+  user?: { id: number; username: string };
+}
+
+type CustomResponse = Response & {
+  sendRes: (data: string | number | boolean | object | null) => Response;
+};
+
 export const createComment = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
+  const resWithSend = res as CustomResponse;
   try {
-    const { content, userId, landmarkId } = req.body;
+    const { content, landmarkId } = req.body;
+    const userId = req.user?.id;
 
     if (!content || !userId || !landmarkId) {
-      res.status(400).json({ error: 'All fields are required.' });
+      resWithSend.status(400).sendRes({ message: 'All fields are required.' });
       return;
     }
 
     const landmark = await Landmark.findByPk(landmarkId);
     if (!landmark) {
-      res.status(404).json({ error: 'Landmark not found.' });
+      resWithSend.status(404).sendRes({ message: 'Landmark not found.' });
       return;
     }
 
     const comment = await Comment.create({ content, userId, landmarkId });
-    res.status(201).json(comment);
-  } catch (error) {
-    console.error('Create comment error:', error);
+    resWithSend.status(201).sendRes(comment);
+  } catch (e) {
+    const error =
+      e instanceof Error
+        ? e
+        : new Error('Unknown error while creating comment');
+    console.error('Create comment error:', error.message);
     next(error);
   }
 };
@@ -33,6 +47,7 @@ export const getCommentsByLandmark = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
+  const resWithSend = res as CustomResponse;
   try {
     const { landmarkId } = req.params;
 
@@ -41,37 +56,50 @@ export const getCommentsByLandmark = async (
       include: [{ model: User, attributes: ['id', 'username'] }],
     });
 
-    res.status(200).json(comments);
-  } catch (error) {
-    console.error('Fetch comments error:', error);
+    resWithSend.status(200).sendRes(comments);
+  } catch (e) {
+    const error =
+      e instanceof Error
+        ? e
+        : new Error('Unknown error while fetching comments');
+    console.error('Fetch comments error:', error.message);
     next(error);
   }
 };
 
 export const deleteComment = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
+  const resWithSend = res as CustomResponse;
   try {
     const { id } = req.params;
-    const { userId } = req.body; // Assumes userId is sent in request
+    const userId = req.user?.id;
 
     const comment = await Comment.findByPk(id);
     if (!comment) {
-      res.status(404).json({ error: 'Comment not found.' });
+      resWithSend.status(404).sendRes({ message: 'Comment not found.' });
       return;
     }
 
     if (comment.userId !== userId) {
-      res.status(403).json({ error: 'You can only delete your own comments.' });
+      resWithSend
+        .status(403)
+        .sendRes({ message: 'You can only delete your own comments.' });
       return;
     }
 
     await comment.destroy();
-    res.status(204).json({ message: 'Comment deleted successfully.' });
-  } catch (error) {
-    console.error('Delete comment error:', error);
+    resWithSend
+      .status(204)
+      .sendRes({ message: 'Comment deleted successfully.' });
+  } catch (e) {
+    const error =
+      e instanceof Error
+        ? e
+        : new Error('Unknown error while deleting comment');
+    console.error('Delete comment error:', error.message);
     next(error);
   }
 };
