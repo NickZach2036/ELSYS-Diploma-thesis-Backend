@@ -20,15 +20,10 @@ export const createComment = async (
       return;
     }
 
-    const comment = await Comment.create({
-      content,
-      userId,
-      landmarkId,
-    });
-
+    const comment = await Comment.create({ content, userId, landmarkId });
     res.status(201).json(comment);
   } catch (error) {
-    console.error('Error creating comment:', error);
+    console.error('Create comment error:', error);
     next(error);
   }
 };
@@ -43,17 +38,12 @@ export const getCommentsByLandmark = async (
 
     const comments = await Comment.findAll({
       where: { landmarkId },
-      include: [
-        {
-          model: User,
-          attributes: ['id', 'username'],
-        },
-      ],
+      include: [{ model: User, attributes: ['id', 'username'] }],
     });
 
     res.status(200).json(comments);
   } catch (error) {
-    console.error('Error fetching comments:', error);
+    console.error('Fetch comments error:', error);
     next(error);
   }
 };
@@ -65,6 +55,7 @@ export const deleteComment = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const { userId } = req.body; // Assumes userId is sent in request
 
     const comment = await Comment.findByPk(id);
     if (!comment) {
@@ -72,10 +63,15 @@ export const deleteComment = async (
       return;
     }
 
+    if (comment.userId !== userId) {
+      res.status(403).json({ error: 'You can only delete your own comments.' });
+      return;
+    }
+
     await comment.destroy();
     res.status(204).json({ message: 'Comment deleted successfully.' });
   } catch (error) {
-    console.error('Error deleting comment:', error);
+    console.error('Delete comment error:', error);
     next(error);
   }
 };

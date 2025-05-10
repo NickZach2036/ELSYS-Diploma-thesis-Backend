@@ -4,26 +4,29 @@ import User from './user';
 import Landmark from './landmark';
 
 interface CommentAttributes {
-  id: number;
-  content: string;
-  userId: number;
-  landmarkId: number;
+  id?: number;
+  content?: string;
+  userId?: number;
+  landmarkId?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-type CommentCreationAttributes = Optional<CommentAttributes, 'id'>;
+type CommentCreationAttributes = Optional<
+  CommentAttributes,
+  keyof CommentAttributes
+>;
 
 class Comment
   extends Model<CommentAttributes, CommentCreationAttributes>
   implements CommentAttributes
 {
-  public id!: number;
-  public content!: string;
-  public userId!: number;
-  public landmarkId!: number;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public id?: number;
+  public content?: string;
+  public userId?: number;
+  public landmarkId?: number;
+  public readonly createdAt?: Date;
+  public readonly updatedAt?: Date;
 }
 
 Comment.init(
@@ -35,11 +38,11 @@ Comment.init(
     },
     content: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     userId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: User,
         key: 'id',
@@ -47,7 +50,7 @@ Comment.init(
     },
     landmarkId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: Landmark,
         key: 'id',

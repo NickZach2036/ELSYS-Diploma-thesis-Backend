@@ -2,26 +2,26 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../utils/database';
 
 interface UserAttributes {
-  id: number;
-  username: string;
-  password: string;
+  id?: number;
+  username?: string;
+  password?: string;
   walkingDistanceMinutes?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-type UserCreationAttributes = Optional<UserAttributes, 'id'>;
+type UserCreationAttributes = Optional<UserAttributes, keyof UserAttributes>;
 
 class User
   extends Model<UserAttributes, UserCreationAttributes>
   implements UserAttributes
 {
-  public id!: number;
-  public username!: string;
-  public password!: string;
-  public walkingDistanceMinutes!: number;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public id?: number;
+  public username?: string;
+  public password?: string;
+  public walkingDistanceMinutes?: number;
+  public readonly createdAt?: Date;
+  public readonly updatedAt?: Date;
 }
 
 User.init(
@@ -33,15 +33,15 @@ User.init(
     },
     username: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true, // <- changed
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true, // <- changed
     },
     walkingDistanceMinutes: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true, // <- changed
     },
   },
   {

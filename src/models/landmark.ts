@@ -3,30 +3,33 @@ import sequelize from '../utils/database';
 import Station from './station';
 
 interface LandmarkAttributes {
-  id: number;
-  name: string;
-  description: string;
-  location: string;
-  stationId: number;
-  distanceFromStation: number; // in meters
+  id?: number;
+  name?: string;
+  description?: string;
+  location?: string;
+  stationId?: number;
+  distanceFromStation?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-type LandmarkCreationAttributes = Optional<LandmarkAttributes, 'id'>;
+type LandmarkCreationAttributes = Optional<
+  LandmarkAttributes,
+  keyof LandmarkAttributes
+>;
 
 class Landmark
   extends Model<LandmarkAttributes, LandmarkCreationAttributes>
   implements LandmarkAttributes
 {
-  public id!: number;
-  public name!: string;
-  public description!: string;
-  public location!: string;
-  public stationId!: number;
-  public distanceFromStation!: number;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public id?: number;
+  public name?: string;
+  public description?: string;
+  public location?: string;
+  public stationId?: number;
+  public distanceFromStation?: number;
+  public readonly createdAt?: Date;
+  public readonly updatedAt?: Date;
 }
 
 Landmark.init(
@@ -38,19 +41,19 @@ Landmark.init(
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     location: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     stationId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: Station,
         key: 'id',
@@ -58,7 +61,7 @@ Landmark.init(
     },
     distanceFromStation: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
   },
   {

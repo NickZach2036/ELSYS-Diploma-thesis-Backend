@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { Op } from 'sequelize';
 import { Landmark, Station } from '../models';
 
 export const getLandmarks = async (
@@ -7,7 +8,34 @@ export const getLandmarks = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
+    const { stationId, walkingMinutes } = req.query;
+
+    if (!stationId || !walkingMinutes) {
+      res.status(400).json({
+        error: 'stationId and walkingMinutes query parameters are required.',
+      });
+      return;
+    }
+
+    const parsedStationId = parseInt(stationId as string, 10);
+    const parsedWalkingMinutes = parseInt(walkingMinutes as string, 10);
+
+    if (isNaN(parsedStationId) || isNaN(parsedWalkingMinutes)) {
+      res.status(400).json({
+        error: 'stationId and walkingMinutes must be valid numbers.',
+      });
+      return;
+    }
+
+    const maxDistance = parsedWalkingMinutes * 80;
+
     const landmarks = await Landmark.findAll({
+      where: {
+        stationId: parsedStationId,
+        distanceFromStation: {
+          [Op.lte]: maxDistance,
+        },
+      },
       include: [
         {
           model: Station,
@@ -15,6 +43,7 @@ export const getLandmarks = async (
         },
       ],
     });
+
     res.status(200).json(landmarks);
   } catch (error) {
     console.error('Error fetching landmarks:', error);
@@ -41,6 +70,7 @@ export const createLandmark = async (
       description,
       location,
       stationId,
+      distanceFromStation: 0,
     });
     res.status(201).json(landmark);
   } catch (error) {
@@ -117,6 +147,7 @@ export const createNewLandmark = async (
       description,
       location,
       stationId,
+      distanceFromStation: 0,
     });
 
     res.status(201).json(newLandmark);
