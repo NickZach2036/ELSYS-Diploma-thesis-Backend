@@ -1,15 +1,20 @@
 import express from 'express';
-import { authRoutes, landmarkRoutes, commentRoutes } from './routes';
+import {
+  authRoutes,
+  landmarkRoutes,
+  commentRoutes,
+  stationRoutes,
+} from './routes';
 import { sequelize, sendRes } from './utils';
-import { User, Landmark, Station, Comment } from './models';
 
 const app = express();
-const PORT = process.env.PORT || 2999;
+const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(sendRes);
 
 app.use('/auth', authRoutes);
+app.use('/stations', stationRoutes);
 app.use('/landmarks', landmarkRoutes);
 app.use('/comments', commentRoutes);
 
@@ -17,7 +22,7 @@ sequelize
   .authenticate()
   .then(() => {
     console.log('Database connected.');
-    return sequelize.sync();
+    return sequelize.sync({ alter: true });
   })
   .then(() => {
     console.log('All models were synchronized successfully.');
