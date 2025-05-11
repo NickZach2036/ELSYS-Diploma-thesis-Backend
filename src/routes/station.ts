@@ -3,7 +3,7 @@ import { createStation, getStations } from '../controllers/station';
 
 const router = express.Router();
 
-router.post('/createStation', createStation);
-router.post('/getStations', getStations);
+router.post('/', createStation);
+router.get('/', getStations);
 
 export default router;
